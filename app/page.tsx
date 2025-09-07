@@ -48,6 +48,36 @@ export default function BusTrackingApp() {
   }
 
   const updateDateEntry = (dateIndex: number, date: string) => {
+    const existingDateIndex = userData.pointages.findIndex((entry, index) => entry.date === date && index !== dateIndex)
+
+    if (existingDateIndex !== -1) {
+      toast({
+        title: "Attention",
+        description: "Cette date existe déjà. Les bus seront fusionnés.",
+        variant: "default",
+      })
+
+      // Fusionner les bus de la date existante avec la nouvelle
+      const currentEntry = userData.pointages[dateIndex]
+      const existingEntry = userData.pointages[existingDateIndex]
+
+      setUserData((prev) => ({
+        ...prev,
+        pointages: prev.pointages
+          .map((entry, index) => {
+            if (index === existingDateIndex) {
+              return {
+                ...entry,
+                buses: [...entry.buses, ...currentEntry.buses],
+              }
+            }
+            return entry
+          })
+          .filter((_, index) => index !== dateIndex),
+      }))
+      return
+    }
+
     setUserData((prev) => ({
       ...prev,
       pointages: prev.pointages.map((entry, index) => (index === dateIndex ? { ...entry, date } : entry)),

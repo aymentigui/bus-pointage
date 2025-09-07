@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Search, Calendar, Phone, Building2, Bus, User } from "lucide-react"
 
 interface BusEntry {
@@ -26,6 +27,13 @@ interface Pointage {
   user: PointageUser
   buses: BusEntry[]
   createdAt: string
+}
+
+interface GroupedPointage {
+  hotel: string
+  pointages: Pointage[]
+  totalRotations: number
+  userCount: number
 }
 
 export default function AdminPage() {
@@ -76,9 +84,39 @@ export default function AdminPage() {
     setDateFilter("")
   }
 
+  const groupPointagesByHotel = (pointages: Pointage[]): GroupedPointage[] => {
+    const grouped = pointages.reduce(
+      (acc, pointage) => {
+        const hotel = pointage.user.hotel
+        if (!acc[hotel]) {
+          acc[hotel] = {
+            hotel,
+            pointages: [],
+            totalRotations: 0,
+            userCount: 0,
+          }
+        }
+        acc[hotel].pointages.push(pointage)
+        acc[hotel].totalRotations += pointage.buses.reduce((total, bus) => total + bus.rotations, 0)
+        return acc
+      },
+      {} as Record<string, GroupedPointage>,
+    )
+
+    // Calculer le nombre d'utilisateurs uniques par hôtel
+    Object.values(grouped).forEach((group) => {
+      const uniqueUsers = new Set(group.pointages.map((p) => p.user.id))
+      group.userCount = uniqueUsers.size
+    })
+
+    return Object.values(grouped).sort((a, b) => a.hotel.localeCompare(b.hotel))
+  }
+
   const totalRotations = filteredPointages.reduce((total, pointage) => {
     return total + pointage.buses.reduce((busTotal, bus) => busTotal + bus.rotations, 0)
   }, 0)
+
+  const groupedPointages = groupPointagesByHotel(filteredPointages)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -165,73 +203,109 @@ export default function AdminPage() {
           </CardContent>
         </Card>
 
-        <div className="space-y-4">
-          {loading ? (
-            <Card>
-              <CardContent className="p-8 text-center">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5" />
+              Pointages Groupés par Hôtel
+            </CardTitle>
+            <CardDescription>
+              {filteredPointages.length} pointage{filteredPointages.length > 1 ? "s" : ""} dans{" "}
+              {groupedPointages.length} hôtel{groupedPointages.length > 1 ? "s" : ""}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="p-8 text-center">
                 <p className="text-slate-600">Chargement des pointages...</p>
-              </CardContent>
-            </Card>
-          ) : filteredPointages.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center">
+              </div>
+            ) : filteredPointages.length === 0 ? (
+              <div className="p-8 text-center">
                 <p className="text-slate-600">Aucun pointage trouvé</p>
-              </CardContent>
-            </Card>
-          ) : (
-            filteredPointages.map((pointage) => (
-              <Card key={pointage.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        <User className="h-5 w-5 text-blue-600" />
-                        {pointage.user.nom}
-                      </CardTitle>
-                      <CardDescription>Pointage du {pointage.date}</CardDescription>
-                    </div>
-                    <Badge variant="secondary">{pointage.buses.length} bus</Badge>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-slate-500" />
-                      <span className="text-sm">{pointage.user.telephone}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-slate-500" />
-                      <span className="text-sm">{pointage.user.hotel}</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h4 className="font-medium flex items-center gap-2">
-                      <Bus className="h-4 w-4" />
-                      Détails des Bus
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                      {pointage.buses.map((bus) => (
-                        <div key={bus.id} className="flex justify-between items-center p-3 bg-white border rounded-lg">
-                          <span className="font-medium">{bus.matricule}</span>
-                          <Badge variant="outline">
-                            {bus.rotations} rotation{bus.rotations > 1 ? "s" : ""}
-                          </Badge>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {groupedPointages.map((group) => (
+                  <div key={group.hotel} className="border rounded-lg overflow-hidden">
+                    <div className="bg-slate-100 px-4 py-3 border-b">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-5 w-5 text-purple-600" />
+                          <h3 className="font-semibold text-lg">{group.hotel}</h3>
                         </div>
-                      ))}
+                        <div className="flex items-center gap-4 text-sm text-slate-600">
+                          <span>
+                            {group.userCount} utilisateur{group.userCount > 1 ? "s" : ""}
+                          </span>
+                          <span>
+                            {group.pointages.length} pointage{group.pointages.length > 1 ? "s" : ""}
+                          </span>
+                          <Badge variant="secondary">{group.totalRotations} rotations</Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Nom</TableHead>
+                            <TableHead>Téléphone</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Bus</TableHead>
+                            <TableHead>Total Rotations</TableHead>
+                            <TableHead>Créé le</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {group.pointages.map((pointage) => (
+                            <TableRow key={pointage.id} className="hover:bg-slate-50">
+                              <TableCell className="font-medium">
+                                <div className="flex items-center gap-2">
+                                  <User className="h-4 w-4 text-blue-600" />
+                                  {pointage.user.nom}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Phone className="h-4 w-4 text-slate-500" />
+                                  {pointage.user.telephone}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline">{pointage.date}</Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="space-y-1">
+                                  {pointage.buses.map((bus) => (
+                                    <div key={bus.id} className="flex items-center gap-2 text-sm">
+                                      <Bus className="h-3 w-3 text-green-600" />
+                                      <span className="font-mono">{bus.matricule}</span>
+                                      <Badge variant="secondary" className="text-xs">
+                                        {bus.rotations}
+                                      </Badge>
+                                    </div>
+                                  ))}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="default">
+                                  {pointage.buses.reduce((total, bus) => total + bus.rotations, 0)}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm text-slate-500">
+                                {new Date(pointage.createdAt).toLocaleDateString("fr-FR")}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </div>
                   </div>
-
-                  <div className="text-xs text-slate-500 flex items-center gap-2">
-                    <Calendar className="h-3 w-3" />
-                    Créé le {new Date(pointage.createdAt).toLocaleString("fr-FR")}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
