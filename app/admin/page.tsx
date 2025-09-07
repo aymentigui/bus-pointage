@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, Calendar, Phone, Building2, Bus, User } from "lucide-react"
+import { Search, Calendar, Phone, Building2, Bus, User, Download } from "lucide-react"
 
 interface BusEntry {
   id: string
@@ -118,6 +118,41 @@ export default function AdminPage() {
 
   const groupedPointages = groupPointagesByHotel(filteredPointages)
 
+  // Fonction pour exporter les données en Excel
+  const exportToExcel = () => {
+    // Préparer les données pour l'export
+    const dataToExport = filteredPointages.flatMap(pointage => 
+      pointage.buses.map(bus => ({
+        "Nom": pointage.user.nom,
+        "Téléphone": pointage.user.telephone,
+        "Hôtel": pointage.user.hotel,
+        "Date": pointage.date,
+        "Matricule Bus": bus.matricule,
+        "Rotations": bus.rotations
+      }))
+    )
+
+    // Créer un fichier CSV (format simple compatible avec Excel)
+    const headers = ["Nom", "Téléphone", "Hôtel", "Date", "Matricule Bus", "Rotations"]
+    const csvContent = [
+      headers.join(","),
+      ...dataToExport.map(row => 
+        Object.values(row).map(value => `"${value}"`).join(",")
+      )
+    ].join("\n")
+
+    // Créer un blob et un lien de téléchargement
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.setAttribute("href", url)
+    link.setAttribute("download", `pointages_bus_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -172,7 +207,7 @@ export default function AdminPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Recherche</label>
                 <Input
@@ -199,20 +234,46 @@ export default function AdminPage() {
                   Effacer les filtres
                 </Button>
               </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Export</label>
+                <Button 
+                  onClick={exportToExcel} 
+                  className="w-full bg-green-600 hover:bg-green-700"
+                  disabled={filteredPointages.length === 0}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Exporter Excel
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              Pointages Groupés par Hôtel
-            </CardTitle>
-            <CardDescription>
-              {filteredPointages.length} pointage{filteredPointages.length > 1 ? "s" : ""} dans{" "}
-              {groupedPointages.length} hôtel{groupedPointages.length > 1 ? "s" : ""}
-            </CardDescription>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5" />
+                  Pointages Groupés par Hôtel
+                </CardTitle>
+                <CardDescription>
+                  {filteredPointages.length} pointage{filteredPointages.length > 1 ? "s" : ""} dans{" "}
+                  {groupedPointages.length} hôtel{groupedPointages.length > 1 ? "s" : ""}
+                </CardDescription>
+              </div>
+              {filteredPointages.length > 0 && (
+                <Button 
+                  onClick={exportToExcel} 
+                  variant="outline"
+                  className="bg-green-50 text-green-700 hover:bg-green-100 border-green-200"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Exporter
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {loading ? (
