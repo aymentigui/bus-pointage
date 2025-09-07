@@ -42,6 +42,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [dateFilter, setDateFilter] = useState("")
+  const [busesCount, setBusesCount] = useState(0)
 
   const fetchPointages = async () => {
     try {
@@ -55,6 +56,9 @@ export default function AdminPage() {
         const data = await response.json()
         setPointages(data)
         setFilteredPointages(data)
+        const allBuses = data.flatMap((pointage:any) => pointage.buses)
+        const uniqueBuses = new Set(allBuses.map((bus:any) => bus.id))
+        setBusesCount(uniqueBuses.size)
       }
     } catch (error) {
       console.error("Erreur lors du chargement des pointages:", error)
@@ -132,6 +136,7 @@ export default function AdminPage() {
       }))
     )
 
+
     // Créer un fichier CSV (format simple compatible avec Excel)
     const headers = ["Nom", "Téléphone", "Hôtel", "Date", "Matricule Bus", "Rotations"]
     const csvContent = [
@@ -167,7 +172,7 @@ export default function AdminPage() {
               <div className="flex items-center space-x-2">
                 <Calendar className="h-8 w-8 text-blue-600" />
                 <div>
-                  <p className="text-2xl font-bold">{filteredPointages.length}</p>
+                  <p className="text-2xl font-bold">{busesCount}</p>
                   <p className="text-sm text-slate-600">Pointages</p>
                 </div>
               </div>
