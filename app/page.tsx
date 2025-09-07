@@ -263,35 +263,35 @@ export default function BusTrackingApp() {
             {userData.pointages.map((dateEntry, dateIndex) => (
               <Card key={dateIndex} className="border-2 border-muted">
                 <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-secondary" />
                       <Input
                         type="date"
                         value={dateEntry.date}
                         onChange={(e) => updateDateEntry(dateIndex, e.target.value)}
-                        className="w-auto"
+                        className="w-full sm:w-auto"
                       />
                     </div>
-                    <Button variant="destructive" size="sm" onClick={() => removeDateEntry(dateIndex)}>
+                    <Button variant="destructive" size="sm" onClick={() => removeDateEntry(dateIndex)} className="mt-2 sm:mt-0">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {dateEntry.buses.map((bus, busIndex) => (
-                    <div key={busIndex} className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                      <div className="flex items-center gap-2 flex-1">
-                        <Bus className="h-4 w-4 text-secondary" />
+                    <div key={busIndex} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 bg-muted rounded-lg">
+                      <div className="flex items-center gap-2 w-full sm:flex-1">
+                        <Bus className="h-4 w-4 text-secondary flex-shrink-0" />
                         <Input
                           placeholder="Matricule du bus"
                           value={bus.matricule}
                           onChange={(e) => updateBusEntry(dateIndex, busIndex, "matricule", e.target.value)}
-                          className="flex-1"
+                          className="w-full"
                         />
                       </div>
-                      <div className="flex items-center gap-2">
-                        <RotateCcw className="h-4 w-4 text-secondary" />
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <RotateCcw className="h-4 w-4 text-secondary flex-shrink-0" />
                         <Input
                           type="number"
                           min="1"
@@ -300,10 +300,10 @@ export default function BusTrackingApp() {
                           onChange={(e) =>
                             updateBusEntry(dateIndex, busIndex, "rotations", Number.parseInt(e.target.value) || 1)
                           }
-                          className="w-24"
+                          className="w-full sm:w-24"
                         />
                       </div>
-                      <Button variant="destructive" size="sm" onClick={() => removeBusEntry(dateIndex, busIndex)}>
+                      <Button variant="destructive" size="sm" onClick={() => removeBusEntry(dateIndex, busIndex)} className="w-full sm:w-auto mt-2 sm:mt-0">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -325,7 +325,7 @@ export default function BusTrackingApp() {
 
         {/* Submit Button */}
         <div className="flex justify-center">
-          <Button onClick={handleSubmit} size="lg" className="px-8" disabled={isLoading}>
+          <Button onClick={handleSubmit} size="lg" className="px-8 w-full sm:w-auto" disabled={isLoading}>
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
