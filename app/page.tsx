@@ -226,6 +226,7 @@ export default function BusTrackingApp() {
                   id="nom"
                   placeholder="Entrez votre nom"
                   value={userData.nom}
+                  className="border border-blue-500"
                   onChange={(e) => setUserData((prev) => ({ ...prev, nom: e.target.value }))}
                 />
               </div>
@@ -234,6 +235,7 @@ export default function BusTrackingApp() {
                 <Input
                   id="telephone"
                   placeholder="Entrez votre numéro"
+                  className="border border-blue-500"
                   value={userData.telephone}
                   onChange={(e) => setUserData((prev) => ({ ...prev, telephone: e.target.value }))}
                 />
@@ -244,6 +246,7 @@ export default function BusTrackingApp() {
                   id="hotel"
                   placeholder="Entrez le nom de l'hôtel"
                   value={userData.hotel}
+                  className="border border-blue-500"
                   onChange={(e) => setUserData((prev) => ({ ...prev, hotel: e.target.value }))}
                 />
               </div>
@@ -270,7 +273,7 @@ export default function BusTrackingApp() {
                         type="date"
                         value={dateEntry.date}
                         onChange={(e) => updateDateEntry(dateIndex, e.target.value)}
-                        className="w-full sm:w-auto"
+                        className="w-full sm:w-auto border border-blue-500"
                       />
                     </div>
                     <Button variant="destructive" size="sm" onClick={() => removeDateEntry(dateIndex)} className="mt-2 sm:mt-0">
@@ -287,7 +290,7 @@ export default function BusTrackingApp() {
                           placeholder="Matricule du bus"
                           value={bus.matricule}
                           onChange={(e) => updateBusEntry(dateIndex, busIndex, "matricule", e.target.value)}
-                          className="w-full"
+                          className="w-full bg-white border border-blue-500"
                         />
                       </div>
                       <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -300,7 +303,7 @@ export default function BusTrackingApp() {
                           onChange={(e) =>
                             updateBusEntry(dateIndex, busIndex, "rotations", Number.parseInt(e.target.value) || 1)
                           }
-                          className="w-full sm:w-24"
+                          className="w-full sm:w-24 border border-blue-500"
                         />
                       </div>
                       <Button variant="destructive" size="sm" onClick={() => removeBusEntry(dateIndex, busIndex)} className="w-full sm:w-auto mt-2 sm:mt-0">
