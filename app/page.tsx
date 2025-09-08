@@ -299,7 +299,7 @@ export default function BusTrackingApp() {
                         <RotateCcw className="h-4 w-4 text-secondary flex-shrink-0" />
                         <Input
                           type="number"
-                          min="1"
+                          min="0"
                           placeholder="Rotations"
                           value={bus.rotations}
                           onChange={(e) =>
