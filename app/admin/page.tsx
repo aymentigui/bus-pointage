@@ -44,7 +44,6 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [dateFilter, setDateFilter] = useState("")
   const [busesCount, setBusesCount] = useState(0)
-  const [pointagesCount, setPontagesCount] = useState(0)
 
   const fetchPointages = async () => {
     try {
@@ -55,7 +54,6 @@ export default function AdminPage() {
         setPointages(data)
         setFilteredPointages(data)
         const allBuses = data.flatMap((pointage: any) => pointage.buses)
-        setPontagesCount(allBuses.length)
         const uniqueBuses = new Set(allBuses.map((bus: any) => bus.id))
         setBusesCount(uniqueBuses.size)
       }
@@ -91,7 +89,6 @@ export default function AdminPage() {
 
     setFilteredPointages(filtered)
     const allBuses = filtered.flatMap((pointage: any) => pointage.buses)
-    setPontagesCount(allBuses.length)
     const uniqueBuses = new Set(allBuses.map((bus: any) => bus.id))
     setBusesCount(uniqueBuses.size)
   }, [searchQuery, dateFilter, pointages])
@@ -187,7 +184,7 @@ export default function AdminPage() {
           <p className="text-slate-600">Gestion et suivi de tous les pointages de bus</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
@@ -223,19 +220,6 @@ export default function AdminPage() {
               </div>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-2">
-                <Building2 className="h-8 w-8 text-purple-600" />
-                <div>
-                  <p className="text-2xl font-bold">{pointagesCount}</p>
-                  <p className="text-sm text-slate-600">Hôtels</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
         </div>
 
         <Card>
