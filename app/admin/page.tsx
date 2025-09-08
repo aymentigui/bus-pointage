@@ -150,18 +150,18 @@ export default function AdminPage() {
         "Rotations": bus.rotations
       }))
     )
-
-    // Créer un fichier CSV (format simple compatible avec Excel)
+  
+    // Créer un fichier CSV avec BOM pour UTF-8
     const headers = ["Nom", "Téléphone", "Hôtel", "Date", "Matricule Bus", "Rotations"]
     const csvContent = [
-      headers.join(","),
+      "\uFEFF" + headers.join(","), // BOM pour UTF-8
       ...dataToExport.map(row => 
         Object.values(row).map(value => `"${value}"`).join(",")
       )
     ].join("\n")
-
-    // Créer un blob et un lien de téléchargement
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+  
+    // Créer un blob avec le bon type MIME
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" })
     const url = URL.createObjectURL(blob)
     const link = document.createElement("a")
     link.setAttribute("href", url)
