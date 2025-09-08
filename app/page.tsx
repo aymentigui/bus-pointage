@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Plus, Trash2, Bus, Calendar, RotateCcw, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import DivPublic from "@/components/div-public"
 
 interface BusEntry {
   matricule: string
@@ -200,6 +201,7 @@ export default function BusTrackingApp() {
 
   return (
     <div className="min-h-screen bg-background p-4">
+      <DivPublic />
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">

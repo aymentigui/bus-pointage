@@ -50,3 +50,18 @@ model BusEntry {
   
   @@map("bus_entries")
 }
+
+
+model pointage_employe {
+  id        String   @id @default(cuid())
+  nom       String
+  telephone String
+  hotel     String
+  type      String   // "debut" ou "fin"
+  latitude  Float
+  longitude Float
+  timestamp DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@map("pointage_employe")
+}

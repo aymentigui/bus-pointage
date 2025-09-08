@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Search, Calendar, Phone, Building2, Bus, User, Download } from "lucide-react"
+import DivAdmin from "@/components/div-admin"
 
 interface BusEntry {
   id: string
@@ -160,6 +161,7 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <DivAdmin></DivAdmin>
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold text-slate-900">Administration des Pointages</h1>

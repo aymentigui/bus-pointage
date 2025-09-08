@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/ui/toaster"
 import { Suspense } from "react"
 import "./globals.css"
+import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Pointage bus - TRANSTEV",
