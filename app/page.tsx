@@ -107,9 +107,9 @@ export default function BusTrackingApp() {
       pointages: prev.pointages.map((entry, dIndex) =>
         dIndex === dateIndex
           ? {
-              ...entry,
-              buses: entry.buses.map((bus, bIndex) => (bIndex === busIndex ? { ...bus, [field]: value } : bus)),
-            }
+            ...entry,
+            buses: entry.buses.map((bus, bIndex) => (bIndex === busIndex ? { ...bus, [field]: value } : bus)),
+          }
           : entry,
       ),
     }))
@@ -299,12 +299,19 @@ export default function BusTrackingApp() {
                         <RotateCcw className="h-4 w-4 text-secondary flex-shrink-0" />
                         <Input
                           type="number"
-                          min="0"
+                          min="0"  // Permettre 0 comme valeur minimale
                           placeholder="Rotations"
                           value={bus.rotations}
-                          onChange={(e) =>
-                            updateBusEntry(dateIndex, busIndex, "rotations", Number.parseInt(e.target.value) || 1)
-                          }
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            // Permettre la valeur 0
+                            updateBusEntry(
+                              dateIndex,
+                              busIndex,
+                              "rotations",
+                              value === "" ? 0 : Math.max(0, Number.parseInt(value) || 0)
+                            )
+                          }}
                           className="w-full sm:w-24 border border-blue-500"
                         />
                       </div>
