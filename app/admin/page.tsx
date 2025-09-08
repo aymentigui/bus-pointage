@@ -48,17 +48,13 @@ export default function AdminPage() {
   const fetchPointages = async () => {
     try {
       setLoading(true)
-      const params = new URLSearchParams()
-      if (dateFilter) params.append("date", dateFilter)
-      if (searchQuery) params.append("search", searchQuery)
-
-      const response = await fetch(`/api/admin/pointages?${params}`)
+      const response = await fetch('/api/admin/pointages')
       if (response.ok) {
         const data = await response.json()
         setPointages(data)
         setFilteredPointages(data)
-        const allBuses = data.flatMap((pointage:any) => pointage.buses)
-        const uniqueBuses = new Set(allBuses.map((bus:any) => bus.id))
+        const allBuses = data.flatMap((pointage: any) => pointage.buses)
+        const uniqueBuses = new Set(allBuses.map((bus: any) => bus.id))
         setBusesCount(uniqueBuses.size)
       }
     } catch (error) {
@@ -73,8 +69,26 @@ export default function AdminPage() {
   }, [])
 
   useEffect(() => {
-    fetchPointages()
-  }, [searchQuery, dateFilter])
+    // Filtrer les pointages en fonction des critères de recherche
+    let filtered = [...pointages]
+    
+    // Filtre par date
+    if (dateFilter) {
+      filtered = filtered.filter(pointage => pointage.date === dateFilter)
+    }
+    
+    // Filtre par recherche (nom, hôtel ou téléphone)
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(pointage => 
+        pointage.user.nom.toLowerCase().includes(query) ||
+        pointage.user.hotel.toLowerCase().includes(query) ||
+        pointage.user.telephone.includes(query)
+      )
+    }
+    
+    setFilteredPointages(filtered)
+  }, [searchQuery, dateFilter, pointages])
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value)
@@ -137,7 +151,6 @@ export default function AdminPage() {
       }))
     )
 
-
     // Créer un fichier CSV (format simple compatible avec Excel)
     const headers = ["Nom", "Téléphone", "Hôtel", "Date", "Matricule Bus", "Rotations"]
     const csvContent = [
@@ -175,7 +188,7 @@ export default function AdminPage() {
                 <Calendar className="h-8 w-8 text-blue-600" />
                 <div>
                   <p className="text-2xl font-bold">{busesCount}</p>
-                  <p className="text-sm text-slate-600">Pointages</p>
+                  <p className="text-sm text-slate-600">Nombre bus totale</p>
                 </div>
               </div>
             </CardContent>
