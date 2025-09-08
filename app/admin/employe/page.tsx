@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, Download, MapPin, User, Phone, Building, Calendar, Filter } from "lucide-react"
+import { Search, Download, MapPin, User, Phone, Building, Calendar, Filter, X } from "lucide-react"
 import DivAdmin from "@/components/div-admin"
 
 interface Pointage {
@@ -90,6 +90,16 @@ export default function AdminPointagePage() {
     return Object.values(grouped)
   }
 
+  // Effacer tous les filtres
+  const clearFilters = () => {
+    setSearchTerm("")
+    setDateFilter("")
+    setTypeFilter("all")
+  }
+
+  // Vérifier si des filtres sont actifs
+  const hasActiveFilters = searchTerm !== "" || dateFilter !== "" || typeFilter !== "all"
+
   // Filtrer les données
   useEffect(() => {
     let filtered = pointages
@@ -105,9 +115,13 @@ export default function AdminPointagePage() {
     }
 
     if (dateFilter) {
-      filtered = filtered.filter(p => 
-        new Date(p.timestamp).toLocaleDateString('fr-FR') === dateFilter
-      )
+      // Corriger le filtre de date - comparer avec la date ISO
+      filtered = filtered.filter(p => {
+        const pointageDate = new Date(p.timestamp)
+        const filterDate = new Date(dateFilter)
+        
+        return pointageDate.toISOString().split('T')[0] === filterDate.toISOString().split('T')[0]
+      })
     }
 
     if (typeFilter !== "all") {
@@ -133,9 +147,13 @@ export default function AdminPointagePage() {
     }
 
     if (dateFilter) {
-      exportData = exportData.filter(p => 
-        new Date(p.timestamp).toLocaleDateString('fr-FR') === dateFilter
-      )
+      // Utiliser la même logique de filtrage que pour l'affichage
+      exportData = exportData.filter(p => {
+        const pointageDate = new Date(p.timestamp)
+        const filterDate = new Date(dateFilter)
+        
+        return pointageDate.toISOString().split('T')[0] === filterDate.toISOString().split('T')[0]
+      })
     }
 
     if (typeFilter !== "all") {
@@ -182,7 +200,7 @@ export default function AdminPointagePage() {
 
   return (
     <div className="p-6 space-y-6">
-        <DivAdmin></DivAdmin>
+      <DivAdmin></DivAdmin>
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Administration Pointage Employés</h1>
         <Button onClick={exportToCSV} className="flex items-center gap-2">
@@ -193,11 +211,17 @@ export default function AdminPointagePage() {
 
       {/* Filtres */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="flex items-center gap-2">
             <Filter className="h-5 w-5" />
             Filtres
           </CardTitle>
+          {hasActiveFilters && (
+            <Button variant="outline" size="sm" onClick={clearFilters} className="flex items-center gap-2">
+              <X className="h-4 w-4" />
+              Effacer les filtres
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -248,11 +272,19 @@ export default function AdminPointagePage() {
           <CardTitle>Pointages enregistrés</CardTitle>
           <CardDescription>
             {filteredPointages.length} résultat(s) trouvé(s)
+            {hasActiveFilters && " (filtres actifs)"}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {filteredPointages.length === 0 ? (
-            <p className="text-center py-8 text-muted-foreground">Aucun pointage trouvé</p>
+            <div className="text-center py-8 space-y-4">
+              <p className="text-muted-foreground">Aucun pointage trouvé</p>
+              {hasActiveFilters && (
+                <Button onClick={clearFilters} variant="outline">
+                  Effacer les filtres
+                </Button>
+              )}
+            </div>
           ) : (
             <Table>
               <TableHeader>
