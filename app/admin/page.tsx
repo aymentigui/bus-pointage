@@ -71,23 +71,26 @@ export default function AdminPage() {
   useEffect(() => {
     // Filtrer les pointages en fonction des critères de recherche
     let filtered = [...pointages]
-    
+
     // Filtre par date
     if (dateFilter) {
       filtered = filtered.filter(pointage => pointage.date === dateFilter)
     }
-    
+
     // Filtre par recherche (nom, hôtel ou téléphone)
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(pointage => 
+      filtered = filtered.filter(pointage =>
         pointage.user.nom.toLowerCase().includes(query) ||
         pointage.user.hotel.toLowerCase().includes(query) ||
         pointage.user.telephone.includes(query)
       )
     }
-    
+
     setFilteredPointages(filtered)
+    const allBuses = filtered.flatMap((pointage: any) => pointage.buses)
+    const uniqueBuses = new Set(allBuses.map((bus: any) => bus.id))
+    setBusesCount(uniqueBuses.size)
   }, [searchQuery, dateFilter, pointages])
 
   const handleSearchChange = (value: string) => {
@@ -140,7 +143,7 @@ export default function AdminPage() {
   // Fonction pour exporter les données en Excel
   const exportToExcel = () => {
     // Préparer les données pour l'export
-    const dataToExport = filteredPointages.flatMap(pointage => 
+    const dataToExport = filteredPointages.flatMap(pointage =>
       pointage.buses.map(bus => ({
         "Nom": pointage.user.nom,
         "Téléphone": pointage.user.telephone,
@@ -150,16 +153,16 @@ export default function AdminPage() {
         "Rotations": bus.rotations
       }))
     )
-  
+
     // Créer un fichier CSV avec BOM pour UTF-8
     const headers = ["Nom", "Téléphone", "Hôtel", "Date", "Matricule Bus", "Rotations"]
     const csvContent = [
       "\uFEFF" + headers.join(","), // BOM pour UTF-8
-      ...dataToExport.map(row => 
+      ...dataToExport.map(row =>
         Object.values(row).map(value => `"${value}"`).join(",")
       )
     ].join("\n")
-  
+
     // Créer un blob avec le bon type MIME
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" })
     const url = URL.createObjectURL(blob)
@@ -257,8 +260,8 @@ export default function AdminPage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Export</label>
-                <Button 
-                  onClick={exportToExcel} 
+                <Button
+                  onClick={exportToExcel}
                   className="w-full bg-green-600 hover:bg-green-700"
                   disabled={filteredPointages.length === 0}
                 >
@@ -284,8 +287,8 @@ export default function AdminPage() {
                 </CardDescription>
               </div>
               {filteredPointages.length > 0 && (
-                <Button 
-                  onClick={exportToExcel} 
+                <Button
+                  onClick={exportToExcel}
                   variant="outline"
                   className="bg-green-50 text-green-700 hover:bg-green-100 border-green-200"
                 >
